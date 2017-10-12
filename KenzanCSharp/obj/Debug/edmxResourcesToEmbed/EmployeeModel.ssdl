@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="kenzanModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityType Name="Employee">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="username" Type="varchar" MaxLength="60" Nullable="false" />
+    <Property Name="firstName" Type="varchar" MaxLength="60" Nullable="false" />
+    <Property Name="middleInitial" Type="char" MaxLength="1" />
+    <Property Name="lastName" Type="varchar" MaxLength="60" Nullable="false" />
+    <Property Name="dateOfBirth" Type="date" Nullable="false" />
+    <Property Name="dateOfEmployment" Type="date" />
+    <Property Name="bStatus" Type="int" Nullable="false" />
+    <Property Name="password" Type="char" MaxLength="60" />
+  </EntityType>
+  <EntityType Name="EmployeeRole">
+    <Key>
+      <PropertyRef Name="id" />
+    </Key>
+    <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="role" Type="varchar" MaxLength="60" Nullable="false" />
+  </EntityType>
+  <EntityType Name="EmployeeRoleJoin">
+    <Key>
+      <PropertyRef Name="employee_id" />
+      <PropertyRef Name="employee_role_id" />
+    </Key>
+    <Property Name="employee_id" Type="int" Nullable="false" />
+    <Property Name="employee_role_id" Type="int" Nullable="false" />
+  </EntityType>
+  <Association Name="FK_EmployeeRoleJoin_Employee">
+    <End Role="Employee" Type="Self.Employee" Multiplicity="1" />
+    <End Role="EmployeeRoleJoin" Type="Self.EmployeeRoleJoin" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Employee">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="EmployeeRoleJoin">
+        <PropertyRef Name="employee_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK_EmployeeRoleJoin_EmployeeRole">
+    <End Role="EmployeeRole" Type="Self.EmployeeRole" Multiplicity="1" />
+    <End Role="EmployeeRoleJoin" Type="Self.EmployeeRoleJoin" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="EmployeeRole">
+        <PropertyRef Name="id" />
+      </Principal>
+      <Dependent Role="EmployeeRoleJoin">
+        <PropertyRef Name="employee_role_id" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="kenzanModelStoreContainer">
+    <EntitySet Name="Employee" EntityType="Self.Employee" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="EmployeeRole" EntityType="Self.EmployeeRole" Schema="dbo" store:Type="Tables" />
+    <EntitySet Name="EmployeeRoleJoin" EntityType="Self.EmployeeRoleJoin" Schema="dbo" store:Type="Tables" />
+    <AssociationSet Name="FK_EmployeeRoleJoin_Employee" Association="Self.FK_EmployeeRoleJoin_Employee">
+      <End Role="Employee" EntitySet="Employee" />
+      <End Role="EmployeeRoleJoin" EntitySet="EmployeeRoleJoin" />
+    </AssociationSet>
+    <AssociationSet Name="FK_EmployeeRoleJoin_EmployeeRole" Association="Self.FK_EmployeeRoleJoin_EmployeeRole">
+      <End Role="EmployeeRole" EntitySet="EmployeeRole" />
+      <End Role="EmployeeRoleJoin" EntitySet="EmployeeRoleJoin" />
+    </AssociationSet>
+  </EntityContainer>
+</Schema>
