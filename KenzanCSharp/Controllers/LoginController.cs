@@ -22,7 +22,7 @@ namespace KenzanCSharp.Controllers
                 .Where<Employee>(e => e.username == login.username && e.bStatus == Status.ACTIVE)
                 .FirstOrDefault<Employee>();
 
-            if (employee != null && crypto.BCrypt.Verify(login.password, employee.password))
+            if (employee != null && employee.password != null && crypto.BCrypt.Verify(login.password, employee.password))
             {
                 JWTToken token = new JWTToken(employee);
                 return new LoginResponse() { jwt = token.token };

@@ -161,6 +161,7 @@
     <Compile Include="Controllers\Get_AllController.cs" />
     <Compile Include="Controllers\Delete_EmpController.cs" />
     <Compile Include="Controllers\Add_EmpController.cs" />
+    <Compile Include="Controllers\Set_PasswordController.cs" />
     <Compile Include="Controllers\Update_EmpController.cs" />
     <Compile Include="Employee.cs">
       <DependentUpon>EmployeeModel.tt</DependentUpon>
