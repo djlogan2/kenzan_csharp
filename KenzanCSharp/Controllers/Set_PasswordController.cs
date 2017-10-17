@@ -1,4 +1,5 @@
-﻿using KenzanCSharp.Content;
+﻿using KenzanCSharp.App_Start;
+using KenzanCSharp.Content;
 using KenzanCSharp.JWT;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using crypto = BCrypt.Net;
 
 namespace KenzanCSharp.Controllers
 {
-    [System.Web.Http.Authorize]
+    [RESTAuthorize]
     public class Set_PasswordController : ApiController
     {
         // POST rest/login
@@ -23,17 +24,17 @@ namespace KenzanCSharp.Controllers
                     .Where<Employee>(e => e.username == login.username && e.bStatus == Status.ACTIVE)
                     .FirstOrDefault<Employee>();
 
-                if (emp == null) return new ErrorResponse() { error = "No user found" };
+                if (emp == null) return new ErrorResponse(ErrorNumber.INVALID_USERNAME_OR_PASSWORD, "No user found");
 
                 emp.password = crypto.BCrypt.HashPassword(login.password);
 
                 if (ke.SaveChanges() != 1)
-                    return new ErrorResponse() { error = "Unable to set new password" };
+                    return new ErrorResponse(ErrorNumber.UNKNOWN_ERROR, "Unable to save password");
                 else
-                    return new ErrorResponse() { error = "ok" };
+                    return new ErrorResponse();
             }
             else
-                return new ErrorResponse() { error = "Not authorized to set password" };
+                return new ErrorResponse(ErrorNumber.NOT_AUTHORIZED_FOR_OPERATION, "Not authorized");
         }
     }
 }

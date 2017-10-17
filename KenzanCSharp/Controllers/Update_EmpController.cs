@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KenzanCSharp.App_Start;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -7,7 +8,7 @@ using System.Web.Mvc;
 
 namespace KenzanCSharp.Controllers
 {
-    [System.Web.Http.Authorize(Roles = "ROLE_UPDATE_EMP")]
+    [RESTAuthorize(Roles = "ROLE_UPDATE_EMP")]
     public class Update_EmpController : ApiController
     {
         // POST: rest/upd_emp
@@ -20,7 +21,7 @@ namespace KenzanCSharp.Controllers
                 .FirstOrDefault<Employee>();
 
             if (emp == null)
-                return new ErrorResponse() { error = "No record found to update" };
+                return new ErrorResponse(ErrorNumber.CANNOT_UPDATE_NONEXISTENT_RECORD, "Nonexistant record");
 
             emp.dateOfBirth = employee.dateOfBirth;
             emp.dateOfEmployment = employee.dateOfEmployment;
@@ -30,9 +31,9 @@ namespace KenzanCSharp.Controllers
             emp.bStatus = employee.bStatus;
             emp.username = employee.username;
             if (ke.SaveChanges() != 1)
-                return new ErrorResponse() { error = "Not yet implemented" };
+                return new ErrorResponse(emp.id, ErrorNumber.DUPLICATE_RECORD, "Duplicate record");
             else
-                return new ErrorResponse() { error = "ok" };
+                return new ErrorResponse();
         }
     }
 }

@@ -27,9 +27,7 @@ namespace KenzanCSharp.Controllers
                 JWTToken token = new JWTToken(employee);
                 return new LoginResponse() { jwt = token.token };
             } else
-            {
-                return new LoginResponse() { error = "Login failed", jwt = null };
-            }
+                return new LoginResponse() { errorcode = ErrorNumber.INVALID_USERNAME_OR_PASSWORD, error = "Login failed", jwt = null };
         }
     }
 }

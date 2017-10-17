@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KenzanCSharp.App_Start;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -7,7 +8,7 @@ using System.Web.Mvc;
 
 namespace KenzanCSharp.Controllers
 {
-    [System.Web.Http.Authorize(Roles = "ROLE_ADD_EMP")]
+    [RESTAuthorize(Roles = "ROLE_ADD_EMP")]
     public class Add_EmpController : ApiController
     {
         // POST: rest/add_emp
@@ -15,23 +16,20 @@ namespace KenzanCSharp.Controllers
         {
             kenzanEntities ke = new kenzanEntities();
             ke.Employees.Add(employee);
-            int updated = 0;
-            ErrorResponse err = new ErrorResponse();
+
+            ErrorResponse err;
 
             try
             {
-                updated = ke.SaveChanges();
-                if (updated == 0)
-                    err.error = "No records updated";
+                if (ke.SaveChanges() == 0)
+                    err = new ErrorResponse(ErrorNumber.DUPLICATE_RECORD, "No records updated");
                 else
-                {
-                    err.id = employee.id;
-                    err.error = "ok";
-                }
-            } catch(Exception e)
+                    err = new ErrorResponse(employee.id);
+            }
+            catch (Exception e)
             {
-                updated = 0;
-                err.error = "Add exception: " + e.Message;
+                while (e.InnerException != null) e = e.InnerException;
+                err = new ErrorResponse(ErrorNumber.CANNOT_INSERT_MISSING_FIELDS, e.Message);
             }
 
             return err;

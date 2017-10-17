@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KenzanCSharp.App_Start;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -7,7 +8,7 @@ using System.Web.Mvc;
 
 namespace KenzanCSharp.Controllers
 {
-    [System.Web.Http.Authorize(Roles ="ROLE_DELETE_EMP")]
+    [RESTAuthorize(Roles ="ROLE_DELETE_EMP")]
     public class Delete_EmpController : ApiController
     {
         // GET: rest/delete_emp
@@ -18,14 +19,14 @@ namespace KenzanCSharp.Controllers
                 .Where(e => e.id == id && e.bStatus == Status.ACTIVE)
                 .FirstOrDefault<Employee>();
 
-            if(emp == null)
-                return new ErrorResponse() { error = "No record found to update" };
+            if (emp == null)
+                return new ErrorResponse(ErrorNumber.CANNOT_DELETE_NONEXISTENT_RECORD, "Nonexistent record");
 
             emp.bStatus = Status.INACTIVE;
             if (ke.SaveChanges() != 1)
-                return new ErrorResponse() { error = "Unable to update record" };
+                return new ErrorResponse(ErrorNumber.DUPLICATE_RECORD, "Duplicate record");
             else
-                return new ErrorResponse() { error = "ok" };
+                return new ErrorResponse();
         }
     }
 }

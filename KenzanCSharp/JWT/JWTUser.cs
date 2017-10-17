@@ -10,12 +10,15 @@ namespace KenzanCSharp.JWT
     {
         public JWTUser(JWTToken token)
         {
+            this.token = token;
             Name = token.username;
             AuthenticationType = "JWT";
             IsAuthenticated = token.valid;
             roles = token.roles;
         }
         private List<String> roles;
+
+        public JWTToken token { get; }
 
         public string Name { get; set; }
 

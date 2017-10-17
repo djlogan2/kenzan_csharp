@@ -10,6 +10,7 @@
 namespace KenzanCSharp
 {
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Converters;
     using System;
     using System.Collections.Generic;
     
@@ -28,9 +29,10 @@ namespace KenzanCSharp
         public string firstName { get; set; }
         public string middleInitial { get; set; }
         public string lastName { get; set; }
-        public System.DateTime dateOfBirth { get; set; }
+        public System.DateTime? dateOfBirth { get; set; }
         public Nullable<System.DateTime> dateOfEmployment { get; set; }
-        public Status bStatus { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public Status? bStatus { get; set; }
     
         [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

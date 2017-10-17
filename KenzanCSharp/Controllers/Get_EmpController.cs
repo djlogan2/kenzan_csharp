@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KenzanCSharp.App_Start;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -8,7 +9,8 @@ using System.Web.Mvc;
 namespace KenzanCSharp.Controllers
 {
     //[System.Web.Http.Authorize]
-    [System.Web.Http.AllowAnonymous]
+    //[System.Web.Http.AllowAnonymous]
+    [RESTAuthorize]
     public class Get_EmpController : ApiController
     {
         // GET: rest/get_emp

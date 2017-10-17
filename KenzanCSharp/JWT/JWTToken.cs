@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using KenzanCSharp.Controllers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,19 +25,26 @@ namespace KenzanCSharp.JWT
 
     public class JWTToken
     {
+        private static string SIGNING_KEY = "Kenzan Signing Key";
+        private static string ISSUER = "Kenzan";
+        private static int    EXPIRATION_MINUTES = 60;
         private Header header { get; }
         private Payload payload { get; }
         public String username { get { return (payload == null ? null : payload.username);  } }
         public List<String> roles { get { return (payload == null ? null : payload.roles);  } }
+        public ErrorNumber errorcode;
 
         private String _passed_token;
 
         public String token { get {
                 if (_passed_token != null) return _passed_token;
                 string header = Convert.ToBase64String((new System.Text.ASCIIEncoding()).GetBytes(JsonConvert.SerializeObject(this.header, Formatting.None)));
+                this.payload.iss = ISSUER;
+                this.payload.atIssued = DateTime.Now;
+                this.payload.exp = this.payload.atIssued.AddMinutes(EXPIRATION_MINUTES);
                 string payload = Convert.ToBase64String((new System.Text.ASCIIEncoding()).GetBytes(JsonConvert.SerializeObject(this.payload, Formatting.None)));
 
-                HMACSHA256 hmacsha256 = new HMACSHA256((new System.Text.ASCIIEncoding()).GetBytes("signing key"));
+                HMACSHA256 hmacsha256 = new HMACSHA256((new System.Text.ASCIIEncoding()).GetBytes(SIGNING_KEY));
                 byte[] computedSignature = hmacsha256.ComputeHash((new System.Text.ASCIIEncoding()).GetBytes(header + "." + payload));
                 string signature = Convert.ToBase64String(computedSignature);
                 return "Bearer " + header + "." + payload + "." + signature;
@@ -51,7 +59,7 @@ namespace KenzanCSharp.JWT
             String[] pieces = token.Split('.');
 
             if (pieces == null || pieces.Length != 3)
-                return;
+            { errorcode = ErrorNumber.INVALID_AUTHORIZATION_TOKEN_PARSE_ERROR; return; }
 
             byte[] header = Convert.FromBase64String(pieces[0]);
             byte[] payload = Convert.FromBase64String(pieces[1]);
@@ -59,16 +67,42 @@ namespace KenzanCSharp.JWT
             this.header = JsonConvert.DeserializeObject<Header>(Encoding.UTF8.GetString(header));
             this.payload = JsonConvert.DeserializeObject<Payload>(Encoding.UTF8.GetString(payload));
 
-            HMACSHA256 hmacsha256 = new HMACSHA256((new System.Text.ASCIIEncoding()).GetBytes("signing key"));
+            if(this.header== null || this.payload == null)
+            { errorcode = ErrorNumber.INVALID_AUTHORIZATION_TOKEN_PARSE_ERROR; return; }
+
+            if(this.header.alg == null || this.header.alg != "HS256")
+            { errorcode = ErrorNumber.INVALID_AUTHORIZATION_HEADER_INVALID_ALGORITHM; return; }
+
+            if(this.payload.iss == null)
+            { errorcode = ErrorNumber.INVALID_AUTHORIZATION_PAYLOAD_NO_ISSUER; return; }
+
+            if(this.payload.iss != ISSUER)
+            { errorcode = ErrorNumber.INVALID_AUTHORIZATION_PAYLOAD_INVALID_ISSUER; return; }
+
+            if(this.payload.atIssued == null)
+            { errorcode = ErrorNumber.INVALID_AUTHORIZATION_PAYLOAD_NO_ISSUED; return; }
+
+            if(this.payload.exp == null)
+            { errorcode = ErrorNumber.INVALID_AUTHORIZATION_PAYLOAD_NO_EXPIRATION; return; }
+
+            if (this.payload.exp.ToLocalTime().CompareTo(DateTime.Now) <= 0)
+                { errorcode = ErrorNumber.INVALID_AUTHORIZATION_TOKEN_EXPIRED; return; }
+
+            if(this.payload.atIssued.ToLocalTime().CompareTo(this.payload.exp.ToLocalTime()) >= 0 || this.payload.atIssued.ToLocalTime().CompareTo(DateTime.Now) >= 0)
+                { errorcode = ErrorNumber.INVALID_AUTHORIZATION_PAYLOAD_INVALID_ISSUED; return; }
+
+            HMACSHA256 hmacsha256 = new HMACSHA256((new System.Text.ASCIIEncoding()).GetBytes(SIGNING_KEY));
 
             byte[] computedSignature = hmacsha256.ComputeHash((new System.Text.ASCIIEncoding()).GetBytes(pieces[0] + "." + pieces[1]));
             valid = computedSignature.SequenceEqual(signature);
+            if(!valid) { errorcode = ErrorNumber.INVALID_AUTHORIZATION_TOKEN_INVALID_SIGNATURE; return; }
+
         }
 
         public JWTToken(Employee employee)
         {
             header = new Header() { alg = "HS256" };
-            payload = new Payload() { atIssued = DateTime.Now, exp = DateTime.Now.AddMinutes(60), iss = "Get issuer", username = employee.username, roles = new List<string>() };
+            payload = new Payload() { iss = ISSUER, username = employee.username, roles = new List<string>() };
             foreach (EmployeeRole r in employee.EmployeeRoles) payload.roles.Add(r.role);
             _passed_token = null;
             valid = true;
