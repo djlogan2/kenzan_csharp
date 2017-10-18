@@ -30,10 +30,20 @@ namespace KenzanCSharp.Controllers
             emp.middleInitial = employee.middleInitial;
             emp.bStatus = employee.bStatus;
             emp.username = employee.username;
-            if (ke.SaveChanges() != 1)
-                return new ErrorResponse(emp.id, ErrorNumber.DUPLICATE_RECORD, "Duplicate record");
-            else
-                return new ErrorResponse();
+            try
+            {
+                if (ke.SaveChanges() != 1)
+                    return new ErrorResponse(emp.id, ErrorNumber.UNKNOWN_ERROR, "Error updating record");
+                else
+                    return new ErrorResponse();
+            } catch(Exception e)
+            {
+                while (e.InnerException != null) e = e.InnerException;
+                if (e.Message.Contains("Duplicate"))
+                    return new ErrorResponse(ErrorNumber.DUPLICATE_RECORD, e.Message);
+                else
+                    return new ErrorResponse(ErrorNumber.CANNOT_INSERT_MISSING_FIELDS, e.Message);
+            }
         }
     }
 }

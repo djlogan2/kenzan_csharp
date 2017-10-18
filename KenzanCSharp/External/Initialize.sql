@@ -84,3 +84,6 @@ insert into EmployeeRoleJoin (employee_id, employee_role_id) values ((select id 
 insert into EmployeeRoleJoin (employee_id, employee_role_id) values ((select id from employee where username='kenzanau'), (select id from employeerole where role='ROLE_UPDATE_EMP'));
 insert into EmployeeRoleJoin (employee_id, employee_role_id) values ((select id from employee where username='kenzanu'), (select id from employeerole where role='ROLE_UPDATE_EMP'));
 insert into EmployeeRoleJoin (employee_id, employee_role_id) values ((select id from employee where username='kenzanp'), (select id from employeerole where role='ROLE_SET_PASSWORD'));
+insert into EmployeeRoleJoin (employee_id, employee_role_id) values ((select id from employee where username='kenzanp'), (select id from employeerole where role='ROLE_ADD_EMP'));
+insert into EmployeeRoleJoin (employee_id, employee_role_id) values ((select id from employee where username='kenzanp'), (select id from employeerole where role='ROLE_UPDATE_EMP'));
+insert into EmployeeRoleJoin (employee_id, employee_role_id) values ((select id from employee where username='kenzanp'), (select id from employeerole where role='ROLE_DELETE_EMP'));

@@ -22,14 +22,17 @@ namespace KenzanCSharp.Controllers
             try
             {
                 if (ke.SaveChanges() == 0)
-                    err = new ErrorResponse(ErrorNumber.DUPLICATE_RECORD, "No records updated");
+                    err = new ErrorResponse(ErrorNumber.UNKNOWN_ERROR, "No records updated");
                 else
                     err = new ErrorResponse(employee.id);
             }
             catch (Exception e)
             {
                 while (e.InnerException != null) e = e.InnerException;
-                err = new ErrorResponse(ErrorNumber.CANNOT_INSERT_MISSING_FIELDS, e.Message);
+                if(e.Message.Contains("Duplicate"))
+                    err = new ErrorResponse(ErrorNumber.DUPLICATE_RECORD, e.Message);
+                else
+                    err = new ErrorResponse(ErrorNumber.CANNOT_INSERT_MISSING_FIELDS, e.Message);
             }
 
             return err;

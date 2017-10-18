@@ -17,8 +17,8 @@ namespace KenzanCSharp.JWT
     public class Payload
     {
         public String iss;
-        public DateTime exp;
-        public DateTime atIssued;
+        public DateTime? exp;
+        public DateTime? atIssued;
         public String username;
         public List<String> roles;
     };
@@ -41,7 +41,7 @@ namespace KenzanCSharp.JWT
                 string header = Convert.ToBase64String((new System.Text.ASCIIEncoding()).GetBytes(JsonConvert.SerializeObject(this.header, Formatting.None)));
                 this.payload.iss = ISSUER;
                 this.payload.atIssued = DateTime.Now;
-                this.payload.exp = this.payload.atIssued.AddMinutes(EXPIRATION_MINUTES);
+                this.payload.exp = this.payload.atIssued.Value.AddMinutes(EXPIRATION_MINUTES);
                 string payload = Convert.ToBase64String((new System.Text.ASCIIEncoding()).GetBytes(JsonConvert.SerializeObject(this.payload, Formatting.None)));
 
                 HMACSHA256 hmacsha256 = new HMACSHA256((new System.Text.ASCIIEncoding()).GetBytes(SIGNING_KEY));
@@ -85,11 +85,11 @@ namespace KenzanCSharp.JWT
             if(this.payload.exp == null)
             { errorcode = ErrorNumber.INVALID_AUTHORIZATION_PAYLOAD_NO_EXPIRATION; return; }
 
-            if (this.payload.exp.ToLocalTime().CompareTo(DateTime.Now) <= 0)
-                { errorcode = ErrorNumber.INVALID_AUTHORIZATION_TOKEN_EXPIRED; return; }
+            if(this.payload.atIssued.Value.ToLocalTime().CompareTo(this.payload.exp.Value.ToLocalTime()) >= 0 || this.payload.atIssued.Value.ToLocalTime().CompareTo(DateTime.Now) >= 0)
+            { errorcode = ErrorNumber.INVALID_AUTHORIZATION_PAYLOAD_INVALID_ISSUED; return; }
 
-            if(this.payload.atIssued.ToLocalTime().CompareTo(this.payload.exp.ToLocalTime()) >= 0 || this.payload.atIssued.ToLocalTime().CompareTo(DateTime.Now) >= 0)
-                { errorcode = ErrorNumber.INVALID_AUTHORIZATION_PAYLOAD_INVALID_ISSUED; return; }
+            if (this.payload.exp.Value.ToLocalTime().CompareTo(DateTime.Now) <= 0)
+            { errorcode = ErrorNumber.INVALID_AUTHORIZATION_TOKEN_EXPIRED; return; }
 
             HMACSHA256 hmacsha256 = new HMACSHA256((new System.Text.ASCIIEncoding()).GetBytes(SIGNING_KEY));
 
