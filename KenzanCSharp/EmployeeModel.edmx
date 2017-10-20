@@ -81,14 +81,17 @@
           </Key>
           <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="username" Type="String" MaxLength="60" FixedLength="false" Unicode="false" Nullable="false" />
-          <NavigationProperty Name="EmployeeRoles" Relationship="kenzanModel.EmployeeRoleJoin" FromRole="Employee" ToRole="EmployeeRole" />
-          <Property Name="password" Type="String" Nullable="true" MaxLength="60" Unicode="false" FixedLength="true" />
+          <NavigationProperty Name="EmployeeRoles" Relationship="kenzanModel.EmployeeRoleJoin" FromRole="Employee" ToRole="EmployeeRole" >
+          </NavigationProperty>
+          <Property Name="password" Type="String" Nullable="true" MaxLength="60" Unicode="false" FixedLength="true" >
+          </Property>
           <Property Name="firstName" Type="String" Nullable="false" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="middleInitial" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="middleInitial" Type="String" MaxLength="1" FixedLength="true" Unicode="false" Nullable="true" />
           <Property Name="lastName" Type="String" Nullable="false" MaxLength="60" FixedLength="false" Unicode="false" />
           <Property Name="dateOfBirth" Type="DateTime" Nullable="false" Precision="0" />
-          <Property Name="dateOfEmployment" Type="DateTime" Precision="0" />
-          <Property Name="bStatus" Type="kenzanModel.Status" Nullable="false" />
+          <Property Name="dateOfEmployment" Type="DateTime" Precision="0" Nullable="true" />
+          <Property Name="bStatus" Type="kenzanModel.Status" Nullable="false" >
+          </Property>
         </EntityType>
         <EntityContainer Name="kenzanEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Employees" EntityType="Self.Employee" />
