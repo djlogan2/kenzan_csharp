@@ -64,8 +64,16 @@ namespace KenzanCSharp.JWT
             byte[] header = Convert.FromBase64String(pieces[0]);
             byte[] payload = Convert.FromBase64String(pieces[1]);
             byte[] signature = Convert.FromBase64String(pieces[2]);
-            this.header = JsonConvert.DeserializeObject<Header>(Encoding.UTF8.GetString(header));
-            this.payload = JsonConvert.DeserializeObject<Payload>(Encoding.UTF8.GetString(payload));
+
+            try
+            {
+                this.header = JsonConvert.DeserializeObject<Header>(Encoding.UTF8.GetString(header));
+                this.payload = JsonConvert.DeserializeObject<Payload>(Encoding.UTF8.GetString(payload));
+            } catch(/*JsonSerialization*/Exception)
+            {
+                errorcode = ErrorNumber.INVALID_AUTHORIZATION_TOKEN_PARSE_ERROR;
+                return;
+            }
 
             if(this.header== null || this.payload == null)
             { errorcode = ErrorNumber.INVALID_AUTHORIZATION_TOKEN_PARSE_ERROR; return; }

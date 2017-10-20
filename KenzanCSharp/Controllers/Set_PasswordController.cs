@@ -17,6 +17,9 @@ namespace KenzanCSharp.Controllers
         // POST rest/login
         public ErrorResponse Post([FromBody]Login login)
         {
+            if (login == null || login.username == null || login.password == null)
+                return new ErrorResponse(ErrorNumber.INVALID_USERNAME_OR_PASSWORD, "Invalid login object");
+
             if (User.Identity.Name == login.username || User.IsInRole("ROLE_SET_PASSWORD"))
             {
                 kenzanEntities ke = new kenzanEntities();
