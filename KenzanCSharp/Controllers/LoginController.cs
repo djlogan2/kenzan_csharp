@@ -16,6 +16,11 @@ namespace KenzanCSharp.Controllers
         // POST rest/login
         public LoginResponse Post([FromBody]Login login)
         {
+            if(login == null || !ModelState.IsValid || login.ContainsExtra)
+            {
+                return new LoginResponse() { errorcode = ErrorNumber.INVALID_USERNAME_OR_PASSWORD, error = "Invalid username/password" };
+            }
+
             kenzanEntities ke = new kenzanEntities();
             Employee employee = ke.Employees
                 .Include("EmployeeRoles")

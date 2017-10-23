@@ -12,24 +12,37 @@ namespace KenzanCSharp.Controllers
     public class Update_EmpController : ApiController
     {
         // POST: rest/upd_emp
-        public ErrorResponse Post([FromBody] Employee employee)
+        public ErrorResponse Post([FromBody] JSONEmployee json_employee)
         {
+            if (!ModelState.IsValid || json_employee._id == null)
+            {
+                return new ErrorResponse(ErrorNumber.CANNOT_INSERT_MISSING_FIELDS, "No records added");
+            }
+
+            if (json_employee.ContainsExtra)
+            {
+                return new ErrorResponse(ErrorNumber.CANNOT_INSERT_UNKNOWN_FIELDS, "Extra fields in json");
+            }
+
+            //Employee employee = new Employee(json_employee);
+
             kenzanEntities ke = new kenzanEntities();
             ke.Configuration.ProxyCreationEnabled = false;
             Employee emp = ke.Employees
-                .Where(e => e.id == employee.id && e.bStatus == Status.ACTIVE)
+                .Where(e => e.id == json_employee._id && e.bStatus == Status.ACTIVE)
                 .FirstOrDefault<Employee>();
 
             if (emp == null)
                 return new ErrorResponse(ErrorNumber.CANNOT_UPDATE_NONEXISTENT_RECORD, "Nonexistant record");
 
-            emp.dateOfBirth = employee.dateOfBirth;
-            emp.dateOfEmployment = employee.dateOfEmployment;
-            emp.firstName = employee.firstName;
-            emp.lastName = employee.lastName;
-            emp.middleInitial = employee.middleInitial;
-            emp.bStatus = employee.bStatus;
-            emp.username = employee.username;
+            emp.dateOfBirth = json_employee.dateOfBirth.Value;
+            emp.dateOfEmployment = json_employee.dateOfEmployment;
+            emp.firstName = json_employee.firstName;
+            emp.lastName = json_employee.lastName;
+            emp.middleInitial = json_employee.middleInitial;
+            emp.bStatus = json_employee.bStatus.Value;
+            emp.username = json_employee.username;
+
             try
             {
                 if (ke.SaveChanges() != 1)

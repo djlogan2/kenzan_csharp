@@ -12,17 +12,30 @@ namespace KenzanCSharp.Controllers
     public class Add_EmpController : ApiController
     {
         // POST: rest/add_emp
-        public ErrorResponse Post([FromBody] Employee employee)
+        public ErrorResponse Post([FromBody] JSONEmployee json_employee)
         {
-            kenzanEntities ke = new kenzanEntities();
-            ke.Employees.Add(employee);
 
             ErrorResponse err;
+
+            if (!ModelState.IsValid || json_employee._id != null)
+            {
+                return new ErrorResponse(ErrorNumber.CANNOT_INSERT_MISSING_FIELDS, "No records added");
+            }
+
+            if(json_employee.ContainsExtra)
+            {
+                return new ErrorResponse(ErrorNumber.CANNOT_INSERT_UNKNOWN_FIELDS, "Extra fields in json");
+            }
+
+            Employee employee = new Employee(json_employee);
+
+            kenzanEntities ke = new kenzanEntities();
+            ke.Employees.Add(employee);
 
             try
             {
                 if (ke.SaveChanges() == 0)
-                    err = new ErrorResponse(ErrorNumber.UNKNOWN_ERROR, "No records updated");
+                    err = new ErrorResponse(ErrorNumber.UNKNOWN_ERROR, "No records added");
                 else
                     err = new ErrorResponse(employee.id);
             }

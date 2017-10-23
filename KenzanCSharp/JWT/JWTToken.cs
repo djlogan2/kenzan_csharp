@@ -69,8 +69,18 @@ namespace KenzanCSharp.JWT
             {
                 this.header = JsonConvert.DeserializeObject<Header>(Encoding.UTF8.GetString(header));
                 this.payload = JsonConvert.DeserializeObject<Payload>(Encoding.UTF8.GetString(payload));
-            } catch(/*JsonSerialization*/Exception)
+            } catch(/*JsonSerialization*/Exception e)
             {
+                if(e is JsonReaderException)
+                {
+                    JsonReaderException jre = (JsonReaderException)e;
+                    if(jre.Path == "atIssued")
+                        { errorcode = ErrorNumber.INVALID_AUTHORIZATION_PAYLOAD_INVALID_ISSUED; return; }
+                    else if (jre.Path == "exp")
+                        { errorcode = ErrorNumber.INVALID_AUTHORIZATION_PAYLOAD_INVALID_EXPIRATION; return; }
+                    else
+                        { errorcode = ErrorNumber.INVALID_AUTHORIZATION_TOKEN_PARSE_ERROR; return; }
+                }
                 errorcode = ErrorNumber.INVALID_AUTHORIZATION_TOKEN_PARSE_ERROR;
                 return;
             }
